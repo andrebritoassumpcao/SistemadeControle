@@ -68,6 +68,7 @@ session_start();
                                 <label>Status da Matrícula</label>
                                 <select id="selectStatus" name="status_matricula" class="form-select">
                                   <option value="status0" selected>Selecione</option>
+                                  <option value="Ativo">Ativo</option>
                                   <option value="Ativo Readaptado">Ativo Readaptado</option>
                                   <option value="Ativo Permutado">Ativo Permutado</option>
                                   <option value="Ativo Redução de Carga Horária">Ativo Redução de Carga Horária</option>
@@ -103,7 +104,7 @@ session_start();
                                   <option value="SEMED">SEMED</option>
                                   <option value="Sala de Aula">Sala de Aula</option>
                                   <option value="Dirigente de Turno">Dirigente de Turno</option>
-                                  <option value="Diretor">Diretor</option>
+                                  <option value="Diretor(a)">Diretor(a)</option>
                                   <option value="Diretor Adjunto">Diretor Adjunto</option>
                                   <option value="Sala de Recursos">Sala de Recursos</option>
                                   <option value="Implementador de Leitura">Implementador de Leitura</option>

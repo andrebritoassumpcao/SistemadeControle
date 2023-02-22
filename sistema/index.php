@@ -25,6 +25,7 @@
     <div class="container-fluid mt-4">
 
         <?php include('message.php'); ?>
+        <?php include('paginacao.php'); ?>
         <?php
         // BUSCA
          $busca = filter_input(INPUT_GET, 'busca', FILTER_SANITIZE_STRING);
@@ -46,11 +47,11 @@
 
       //  FILTRO MATRICULA
          $filtroMatricula = filter_input(INPUT_GET, 'status_mat', FILTER_SANITIZE_STRING);
-         $filtroMatricula = in_array($filtroMatricula,['Ativo Readaptado','Ativo Permutado','Ativo Redução de Carga Horária','Licença Médica','Licença Maternidade','Licença Prêmio','Licença sem Vencimento','Vacância','Cedido','Exonerado']) ? $filtroMatricula : '';
+         $filtroMatricula = in_array($filtroMatricula,['Ativo','Ativo Readaptado','Ativo Permutado','Ativo Redução de Carga Horária','Licença Médica','Licença Maternidade','Licença Prêmio','Licença sem Vencimento','Vacância','Cedido','Exonerado']) ? $filtroMatricula : '';
 
       //  FILTRO ATUAÇÃO
          $filtroAtuacao = filter_input(INPUT_GET, 'acting', FILTER_SANITIZE_STRING);
-         $filtroAtuacao = in_array($filtroAtuacao,['SEMED','Sala de Aula','Dirigente de Turno','Diretor','Diretor Adjunto','Sala de Recursos','Implementador de Leitura','Outros']) ? $filtroAtuacao : '';
+         $filtroAtuacao = in_array($filtroAtuacao,['SEMED','Sala de Aula','Dirigente de Turno','Diretor(a)','Diretor Adjunto','Sala de Recursos','Implementador de Leitura','Outros']) ? $filtroAtuacao : '';
 
       //  FILTRO TURNO
          $filtroTurno = filter_input(INPUT_GET, 'turn', FILTER_SANITIZE_STRING);
@@ -77,15 +78,29 @@
                     ];
             $where = implode(' AND ', array_filter($condicoes));
         }
+        
 
         $query3 = "SELECT *
             FROM professores
             JOIN status_matricula ON professores.id = status_matricula.id";
-        if ($where) {
-            $query3 .= " WHERE {$where}";
-        }
+     if ($where) {
+        $query3 .= " WHERE {$where}";
+    }
+    
+    $query3 .= " LIMIT $registros_por_pagina OFFSET $offset";
+    
+    $query_run3 = mysqli_query($con, $query3);
 
-        $query_run3 = mysqli_query($con, $query3);
+    $relatorio_link = 'relatorio.php?' . http_build_query([
+        'busca' => $busca,
+        'busca_turma' => $buscaTurma,
+        'type' => $filtroTipo,
+        'component' => $filtroComponente,
+        'status_mat' => $filtroMatricula,
+        'acting' => $filtroAtuacao,
+        'turn' => $filtroTurno,
+        'other' => $filtroOutras,
+    ]);
         ?>
         
 
@@ -94,17 +109,19 @@
                 <div class="">
                     <div class="">
                         <h4>Detalhes
-                            <a href="professor-create.php" class="btn btn-primary mb-3 float-end">Adicionar Professor</a>
+                            <a href="professor-create.php" class="btn btn-primary float-end">Adicionar Professor</a>
+                            <a href="<?php echo $relatorio_link; ?>" class="btn btn-primary">Relatório</a>
+
                         </h4>
                     </div>
-                    <section>
+                    <section class="d-flex align-items-baseline mb-3">
                         <form action="" method="get">
                             <div class="row">
-                                <div class="col mb-3">
-                                    <label for="busca">Buscar por Escola</label>
+                                <div class="col">
+                                    <label for="busca">Escola</label>
                                     <input type="text" name="busca" class="form-control" value="<?=$busca?>">
                                 </div>
-                                <div class="col mb-3">
+                                <div class="col">
                                     <label for="type">Tipo</label>
                                     <select name="type" class="form-select">
                                     <option value="tipo0">Selecione</option>
@@ -112,7 +129,7 @@
                                     <option value="P2" <?= $filtroTipo === 'P2' ? 'selected' : '' ?>>P2</option>
                                     </select>
                                 </div>
-                                <div class="col mb-3">
+                                <div class="col">
                                 <label>Componente</label>
                                 <select name="component" class="form-select">
                                   <option value="comp0">Selecione</option>
@@ -126,10 +143,11 @@
                                   <option value="Educação Física" <?= $filtroComponente === 'Educação Física' ? 'selected' : '' ?>>Educação Física</option>
                                 </select>
                                 </div>
-                                <div class="col mb-3">
-                                <label>Status da Matrícula</label>
+                                <div class="col">
+                                <label>Status</label>
                                 <select name="status_mat" class="form-select">
                                   <option value="status0">Selecione</option>
+                                  <option value="Ativo" <?= $filtroMatricula === 'Ativo' ? 'selected' : '' ?>>Ativo</option>
                                   <option value="Ativo Readaptado" <?= $filtroMatricula === 'Ativo Readaptado' ? 'selected' : '' ?>>Ativo Readaptado</option>
                                   <option value="Ativo Permutado" <?= $filtroMatricula === 'Ativo Permutado' ? 'selected' : '' ?>>Ativo Permutado</option>
                                   <option value="Ativo Redução de Carga Horária" <?= $filtroMatricula === 'Ativo Redução de Carga Horária' ? 'selected' : '' ?>>Ativo Redução de Carga Horária</option>
@@ -142,14 +160,14 @@
                                   <option value="Exonerado"  <?= $filtroMatricula === 'Exonerado' ? 'selected' : '' ?>>Exonerado</option>
                                 </select>
                                 </div>
-                                <div class="col mb-3">
+                                <div class="col">
                                 <label>Atuação</label>
                                 <select name="acting" class="form-select">
                                   <option value="atua0">Selecione</option>
                                   <option value="SEMED" <?= $filtroAtuacao === 'SEMED' ? 'selected' : '' ?>>SEMED</option>
                                   <option value="Sala de Aula" <?= $filtroAtuacao === 'Sala de Aula' ? 'selected' : '' ?>>Sala de Aula</option>
                                   <option value="Dirigente de Turno" <?= $filtroAtuacao === 'Dirigente de Turno' ? 'selected' : '' ?>>Dirigente de Turno</option>
-                                  <option value="Diretor" <?= $filtroAtuacao === 'Diretor' ? 'selected' : '' ?>>Diretor</option>
+                                  <option value="Diretor" <?= $filtroAtuacao === 'Diretor(a)' ? 'selected' : '' ?>>Diretor</option>
                                   <option value="Diretor Adjunto" <?= $filtroAtuacao === 'Diretor Adjunto' ? 'selected' : '' ?>>Diretor Adjunto</option>
                                   <option value="Sala de Recursos" <?= $filtroAtuacao === 'Sala de Recursos' ? 'selected' : '' ?>>Sala de Recursos</option>
                                   <option value="Implementador de Leitura" <?= $filtroAtuacao === 'Implementador de Leitura' ? 'selected' : '' ?>>Implementador de Leitura</option>
@@ -157,7 +175,7 @@
                                   
                                 </select>
                                 </div>
-                                <div class="col mb-3">
+                                <div class="col">
                                 <label for="turn">Turno</label>
                                 <select class="form-select" name="turn">
                                   <option value="turno0">Selecione</option>
@@ -166,22 +184,22 @@
                                   <option value="Noturno" <?= $filtroTurno === 'Noturno' ? 'selected' : '' ?>>Noturno</option>
                                 </select>
                                 </div>
-                                <div class="col mb-3">
-                                    <label for="busca">Buscar por Turma</label>
+                                <div class="col">
+                                    <label for="busca">Turma</label>
                                     <input type="text" name="busca_turma" class="form-control" value="<?=$buscaTurma?>">
                                 </div>
-                                <div class="col mb-3">
-                                <label for="other">Outras Contratações</label>
+                                <div class="col">
+                                <label for="other">Contratações</label>
                                 <select class="form-select" name="other">
                                 <option value="outro0" selected>Selecione</option>
                                 <option value="RET" <?= $filtroOutras === 'RET' ? 'selected' : '' ?>>RET</option>
                                 <option value="Contrato" <?= $filtroOutras === 'Contrato' ? 'selected' : '' ?>>Contrato</option>
                               </select>
                                 </div>
-                                <div class="col d-flex align-items-end mb-3">
+                                <div class="col d-flex align-items-end">
                                     <button type="submit" class="btn btn-success">Filtrar</button>
-                                    <div class="col d-flex align-items-end" style="margin-left:15px;">
-                                        <a href="?<?=http_build_query(array('busca' => '', 'type' => '', 'component' => '', 'status_mat' => ''))?>" class="btn btn-secondary">Limpar filtros</a>
+                                    <div class="col" style="margin-left:15px;">
+                                        <a href="?<?=http_build_query(array('busca' => '', 'type' => '', 'component' => '', 'status_mat' => ''))?>" class="btn btn-secondary">Limpar</a>
                                     </div>
                                 </div>
 
@@ -271,6 +289,113 @@
                                  
                             </tbody>
                         </table>
+                        <!-- exibir a paginação -->
+                        <nav>
+  <?php
+    $busca = filter_input(INPUT_GET, 'busca', FILTER_SANITIZE_STRING);
+    $buscaTurma = filter_input(INPUT_GET, 'busca_turma', FILTER_SANITIZE_STRING);
+    $filtroTipo = filter_input(INPUT_GET, 'type', FILTER_SANITIZE_STRING);
+    $filtroComponente = filter_input(INPUT_GET, 'component', FILTER_SANITIZE_STRING);
+    $filtroMatricula = filter_input(INPUT_GET, 'status_mat', FILTER_SANITIZE_STRING);
+    $filtroAtuacao = filter_input(INPUT_GET, 'acting', FILTER_SANITIZE_STRING);
+    $filtroTurno = filter_input(INPUT_GET, 'turn', FILTER_SANITIZE_STRING);
+    $filtroOutras = filter_input(INPUT_GET, 'other', FILTER_SANITIZE_STRING);
+    $pagina_atual = filter_input(INPUT_GET, 'pagina', FILTER_SANITIZE_NUMBER_INT) ?: 1;
+    
+    if ($pagina_atual < 1) {
+        $pagina_atual = 1;
+    }
+    
+    if (!in_array($filtroTipo,['P1','P2'])) {
+        $filtroTipo = null;
+    }
+    
+    if (!in_array($filtroComponente,['Geral','Matemática','Língua Portuguesa','Língua Inglesa','História','Geografia','Ciências','Artes','Educação Física'])) {
+        $filtroComponente = null;
+    }
+    
+    if (!in_array($filtroMatricula,['Ativo','Ativo Readaptado','Ativo Permutado','Ativo Redução de Carga Horária','Licença Médica','Licença Maternidade','Licença Prêmio','Licença sem Vencimento','Vacância','Cedido','Exonerado'])) {
+        $filtroMatricula = null;
+    }
+    
+    if (!in_array($filtroAtuacao,['SEMED','Sala de Aula','Dirigente de Turno','Diretor(a)','Diretor Adjunto','Sala de Recursos','Implementador de Leitura','Outros'])) {
+        $filtroAtuacao = null;
+    }
+    
+    if (!in_array($filtroTurno,['Matutino','Vespertino','Noturno'])) {
+        $filtroTurno = null;
+    }
+    
+    $query_params = [
+        'busca' => $busca,
+        'busca_turma' => $buscaTurma,
+        'type' => $filtroTipo,
+        'component' => $filtroComponente,
+        'status_mat' => $filtroMatricula,
+        'acting' => $filtroAtuacao,
+        'turn' => $filtroTurno,
+        'other' => $filtroOutras,
+    ];
+    
+    $query_params_string = http_build_query($query_params);
+    
+    $url = strtok($_SERVER["REQUEST_URI"], '?');
+    $url .= '?' . $query_params_string;
+    
+    $total_paginas = ceil($total_registros_filtered / $registros_por_pagina);
+    
+    $paginas_filtradas = min($total_paginas, 9);
+    $pagina_inicial = max(1, $pagina_atual - floor($paginas_filtradas / 2));
+    $pagina_final = min($total_paginas, $pagina_inicial + $paginas_filtradas - 1);
+    
+    if ($pagina_atual > $total_paginas) {
+        $pagina_atual = $total_paginas;
+    }
+   
+    
+  ?>
+
+  <ul class="pagination">
+    <li class="page-item <?php echo ($pagina_atual == 1)  ? 'disabled' : ''; ?>">
+      <a class="page-link" href="<?php echo ($pagina_atual == 1) ? '#' : $url . '&pagina=' . ($pagina_atual - 1); ?>">Anterior</a>
+    </li>
+
+    <?php if ($pagina_inicial > 1): ?>
+      <li class="page-item">
+        <a class="page-link" href="<?php echo $url . '&pagina=1'; ?>">1</a>
+      </li>
+
+      <?php if ($pagina_inicial > 2): ?>
+        <li class="page-item disabled">
+          <a class="page-link" href="#">...</a>
+        </li>
+      <?php endif; ?>
+    <?php endif; ?>
+
+    <?php for ($i = $pagina_inicial; $i <= $pagina_final; $i++): ?>
+  <?php if ($i <= $total_paginas && $i >= 1): ?>
+    <li class="page-item <?php echo ($pagina_atual == $i)  ? 'active' : ''; ?>">
+      <a class="page-link" href="<?php echo $url . '&pagina=' . $i; ?>"><?php echo $i; ?></a>
+    </li>
+  <?php endif; ?>
+<?php endfor; ?>
+
+
+    <?php if ($pagina_final < $total_paginas): ?>
+      <?php if ($pagina_final < $total_paginas - 1): ?>
+        <li class="page-item disabled">
+          <a class="page-link" href="#">...</a>
+        </li>
+      <?php endif; ?>
+
+      <li class="page-item <?php echo ($pagina_atual == $total_paginas) ? 'disabled' : ''; ?>">
+  <a class="page-link" href="<?php echo ($pagina_atual == $total_paginas) ? '#' : $url . '&pagina=' . ($pagina_atual + 1); ?>">Próxima</a>
+</li>
+    <?php endif; ?>
+
+  </ul>
+</nav>
+
 
                     </div>
                 </div>
@@ -279,6 +404,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
 
 </body>
 </html>
