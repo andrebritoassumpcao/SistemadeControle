@@ -78,7 +78,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             // Tente executar a declaração preparada
             if($stmt->execute()){
                 // Redirecionar para a página de login
-                header("location: login.php");
+                header("location: index.php");
             } else{
                 echo "Ops! Algo deu errado. Por favor, tente novamente mais tarde.";
             }
@@ -128,7 +128,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                 <input type="submit" class="btn btn-primary" value="Criar Conta">
                 <input type="reset" class="btn btn-secondary ml-2" value="Apagar Dados">
             </div>
-            <p>Já tem uma conta? <a href="login.php">Entre aqui</a>.</p>
+            <p>Já tem uma conta? <a href="index.php">Entre aqui</a>.</p>
         </form>
     </div>    
 </body>

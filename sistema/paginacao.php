@@ -84,5 +84,3 @@ if (!empty($where_clause)) {
 } else {
     $paginas_filtradas = $paginas;
 }
-
-?>

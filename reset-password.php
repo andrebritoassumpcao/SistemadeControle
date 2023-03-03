@@ -4,7 +4,7 @@ session_start();
  
 // Verifique se o usuário está logado, caso contrário, redirecione para a página de login
 if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] !== true){
-    header("location: login.php");
+    header("location: index.php");
     exit;
 }
  
@@ -55,7 +55,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             if($stmt->execute()){
                 // Senha atualizada com sucesso. Destrua a sessão e redirecione para a página de login
                 session_destroy();
-                header("location: login.php");
+                header("location: index.php");
                 exit();
             } else{
                 echo "Ops! Algo deu errado. Por favor, tente novamente mais tarde.";

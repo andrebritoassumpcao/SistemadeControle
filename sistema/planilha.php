@@ -6,9 +6,10 @@ require 'conecta.php';
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Writer\Xls;
 
 // Define o nome do arquivo a ser baixado
-$filename = 'planilha.xlsx';
+$filename = 'planilha.xls';
 
 
 
@@ -131,9 +132,7 @@ if ($resultado && mysqli_num_rows($resultado) > 0) {
 $writer = new Xlsx($spreadsheet);
 
 // Escreve a planilha no buffer de saída
-$writer->save('php://output');
+$writer->save($filename);
 
 // Interrompe a execução do script
 exit();
-
-?>
